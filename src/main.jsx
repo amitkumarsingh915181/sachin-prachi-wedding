@@ -47,7 +47,7 @@ function FloatingPetals() {
           }}
         >
           {p.type === 'daisy' && (
-            <img src="/image/imgi_1_petal-daisy (1).png" alt="" width={p.size} height={p.size} style={{ width: p.size, height: p.size, objectFit: 'contain' }} />
+            <img src="/image/imgi_1_petal-daisy.png" alt="" width={p.size} height={p.size} style={{ width: p.size, height: p.size, objectFit: 'contain' }} />
           )}
           {p.type === 'rose' && (
             <img src="/image/imgi_2_petal-rose.png" alt="" width={p.size} height={p.size} style={{ width: p.size, height: p.size, objectFit: 'contain' }} />
@@ -176,7 +176,7 @@ function EnvelopeLanding({ onOpen }) {
       <span className="landing-ornament bl"><RoyalFloralVine size={46} /></span>
       <button className="envelope-btn" onClick={onOpen} aria-label="Open invitation">
         <img
-          src="/image/imgi_3_image (1).webp"
+          src="/image/imgi_3_image_envelope.webp"
           alt="Wedding invitation envelope"
           className="envelope-img"
         />
@@ -424,7 +424,7 @@ function App() {
     <div className="app-root">
       <FloatingPetals />
       <Butterfly />
-      <audio ref={audioRef} src="/background (1).mp3" preload="auto" loop />
+      <audio ref={audioRef} src="/background.mp3" preload="auto" loop />
 
       {!opened && <EnvelopeLanding onOpen={openInvitation} />}
 
