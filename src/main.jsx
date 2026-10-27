@@ -186,7 +186,7 @@ function EnvelopeLanding({ onOpen }) {
           </span>
         </span>
       </button>
-      <div className="landing-text">
+      <div className="landing-text" onClick={onOpen} style={{ cursor: 'pointer' }}>
         <h2 className="landing-title">You're Invited</h2>
         <p className="landing-sub">Tap the envelope to open your invitation</p>
       </div>
@@ -403,18 +403,27 @@ function App() {
     document.title = `${wedding.groom} & ${wedding.bride} | Wedding Invitation`;
   }, []);
 
-  useEffect(() => {
+  const toggleMusic = () => {
     if (!audioRef.current) return;
-    if (musicOn) {
-      audioRef.current.play().catch(() => {});
+    if (audioRef.current.paused) {
+      audioRef.current
+        .play()
+        .then(() => setMusicOn(true))
+        .catch((err) => console.warn('Audio playback prevented:', err));
     } else {
       audioRef.current.pause();
+      setMusicOn(false);
     }
-  }, [musicOn]);
+  };
 
   const openInvitation = () => {
+    if (audioRef.current && audioRef.current.paused) {
+      audioRef.current
+        .play()
+        .then(() => setMusicOn(true))
+        .catch((err) => console.warn('Autoplay prevented on open:', err));
+    }
     setOpened(true);
-    setMusicOn(true);
     window.setTimeout(() => {
       document.getElementById('invitation-content')?.scrollIntoView({ behavior: 'smooth' });
     }, 300);
@@ -424,23 +433,32 @@ function App() {
     <div className="app-root">
       <FloatingPetals />
       <Butterfly />
-      <audio ref={audioRef} src="/background.mp3" preload="auto" loop />
+      <audio
+        ref={audioRef}
+        preload="auto"
+        loop
+        playsInline
+        onPlay={() => setMusicOn(true)}
+        onPause={() => setMusicOn(false)}
+      >
+        <source src="/background.mp3" type="audio/mpeg" />
+        <source src="/background%20(1).mp3" type="audio/mpeg" />
+      </audio>
+
+      <MusicToggle playing={musicOn} onToggle={toggleMusic} />
 
       {!opened && <EnvelopeLanding onOpen={openInvitation} />}
 
       {opened && (
-        <>
-          <MusicToggle playing={musicOn} onToggle={() => setMusicOn(!musicOn)} />
-          <div id="invitation-content" className="invitation-wrap animate-fade-in">
-            <HeroSection />
-            <ScratchSection />
-            <EventsSection />
-            <PresenceSection />
-            <FamilySection />
-            <VenueSection />
-            <Footer />
-          </div>
-        </>
+        <div id="invitation-content" className="invitation-wrap animate-fade-in">
+          <HeroSection />
+          <ScratchSection />
+          <EventsSection />
+          <PresenceSection />
+          <FamilySection />
+          <VenueSection />
+          <Footer />
+        </div>
       )}
     </div>
   );
