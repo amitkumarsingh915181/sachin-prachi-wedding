@@ -384,17 +384,36 @@ function EventCard({ event }) {
           <p className="event-desc">{event.description}</p>
           <Divider className="small" />
           <div className="event-details">
+            {event.bariksha && event.barikshaFirst && (
+              <div>
+                <div className="event-label">Bariksha</div>
+                <div className="event-value">{event.bariksha}</div>
+              </div>
+            )}
             <div>
-              <div className="event-label">Date</div>
-              <div className="event-value">{event.day} · {event.date}</div>
+              <div className="event-label">{event.dateLabel || 'Date'}</div>
+              <div className="event-value">{event.day ? `${event.day} · ` : ''}{event.date}</div>
             </div>
-            <div>
-              <div className="event-label">Time</div>
-              {event.time && <div className="event-value">{event.time}</div>}
-              {event.times && event.times.map((t) => (
-                <div key={t.label} className="event-value">{t.label} · {t.time}</div>
-              ))}
-            </div>
+            {event.time && (
+              <div>
+                <div className="event-label">Time</div>
+                <div className="event-value">{event.time}</div>
+              </div>
+            )}
+            {event.times && event.times.length > 0 && (
+              <div>
+                <div className="event-label">Time</div>
+                {event.times.map((t) => (
+                  <div key={t.label} className="event-value">{t.label} · {t.time}</div>
+                ))}
+              </div>
+            )}
+            {event.bariksha && !event.barikshaFirst && (
+              <div>
+                <div className="event-label">Bariksha</div>
+                <div className="event-value">{event.bariksha}</div>
+              </div>
+            )}
             {event.venue && (
               <div>
                 <div className="event-label">Venue</div>

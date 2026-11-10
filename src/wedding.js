@@ -24,11 +24,13 @@ export const wedding = {
   events: [
     {
       id: 'haldi',
-      title: 'Haldi and Mendhi Ceremony',
+      title: 'Bariksha and Haldi/Mendhi Ceremony',
       description: 'A joyful ceremony of turmeric and henna to bless the couple',
+      dateLabel: 'Haldi & Mehndi',
       date: '29 Nov 2026',
       day: 'Sun',
-      times: [{ label: 'Haldi & Mehndi', time: '04:00 PM - 06:00 PM' }],
+      bariksha: 'Nov 25th, 2026',
+      barikshaFirst: true,
       bgImage: '/image/imgi_3_image.webp',
       baraatDetails: {
         date: 'Monday, 30 November 2026',
