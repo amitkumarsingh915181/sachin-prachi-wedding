@@ -24,25 +24,28 @@ export const wedding = {
   events: [
     {
       id: 'haldi',
-      title: 'Haldi',
-      description: 'A joyful turmeric ceremony to bless the couple',
+      title: 'Haldi and Mendhi Ceremony',
+      description: 'A joyful ceremony of turmeric and henna to bless the couple',
       date: '29 Nov 2026',
       day: 'Sun',
-      times: [{ label: 'Haldi', time: '04:00 PM - 06:00 PM' }],
-      venue: 'Raebareli, Uttar Pradesh',
+      times: [{ label: 'Haldi & Mehndi', time: '04:00 PM - 06:00 PM' }],
       bgImage: '/image/imgi_3_image.webp',
+      baraatDetails: {
+        date: 'Monday, 30 November 2026',
+        departure: '05:00 PM from our residence (Gram-Kantihar, Post-Bhaon, Raebareli)',
+      },
     },
     {
       id: 'wedding',
       title: 'Wedding Ceremony',
-      description: 'The baraat, the exchange of garlands and the wedding rituals',
-      date: '30 Nov 2026',
-      day: 'Mon',
+      description: 'The auspicious wedding rituals and the exchange of garlands',
+      date: '30 November 2026',
+      day: 'Monday',
       times: [
-        { label: 'Baraat', time: '06:00 PM' },
+        { label: 'Arrival & Reception', time: '07:30 PM' },
         { label: 'Varmala Ceremony', time: '10:00 PM' },
       ],
-      venue: 'Raebareli, Uttar Pradesh',
+      venue: 'Gram-Pure Babuji Pali, Post-Maharajganj, District-Raebareli',
       bgImage: '/image/imgi_5_image.webp',
     },
   ],
@@ -50,13 +53,22 @@ export const wedding = {
   // Venue / Map
   venues: [
     {
-      name: 'Raebareli, Uttar Pradesh',
-      mapEmbed: 'https://maps.google.com/maps?q=Raebareli%2C%20Uttar%20Pradesh%2C%20India&output=embed',
-      directionsUrl: 'https://www.google.com/maps/search/?api=1&query=Raebareli%2C%20Uttar%20Pradesh%2C%20India',
+      title: 'Baraat Departure',
+      subtitle: 'Our Residence',
+      name: 'Gram-Kantihar, Post-Bhaon, Raebareli',
+      mapEmbed: 'https://maps.google.com/maps?q=26.1314678,81.2658691&z=15&output=embed',
+      directionsUrl: 'https://maps.app.goo.gl/W9AKWaptjb5TomuF8',
+    },
+    {
+      title: 'Wedding Ceremony & Arrival',
+      subtitle: 'Destination (Arrival)',
+      name: 'Gram-Pure Babuji Pali, Post-Maharajganj, District-Raebareli',
+      mapEmbed: 'https://maps.google.com/maps?q=26.3959179,81.274292&z=15&output=embed',
+      directionsUrl: 'https://maps.app.goo.gl/BhDpMbACcF67gC5RA?g_st=ac',
     },
   ],
 
   // Date for countdown and footer
-  weddingDate: '30th November 2026',
-  isoDate: '2026-11-30T18:00:00+05:30',
+  weddingDate: 'Monday, 30 November 2026',
+  isoDate: '2026-11-30T17:00:00+05:30',
 };

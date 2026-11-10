@@ -101,7 +101,10 @@ function Divider({ className = '' }) {
 function ScratchCard() {
   const canvasRef = useRef(null);
   const [revealed, setRevealed] = useState(false);
+  const [fading, setFading] = useState(false);
+  const [flowers, setFlowers] = useState([]);
   const isDrawing = useRef(false);
+  const hasTriggered = useRef(false);
 
   const initCanvas = useCallback((canvas) => {
     if (!canvas) return;
@@ -119,8 +122,49 @@ function ScratchCard() {
     ctx.globalCompositeOperation = 'destination-out';
   }, []);
 
+  const triggerCelebration = useCallback(() => {
+    if (hasTriggered.current) return;
+    hasTriggered.current = true;
+    setFading(true);
+
+    // Generate burst of flying party flowers / confetti
+    const flowerTypes = ['rose', 'daisy', 'blossom', 'leaf', 'sparkle'];
+    const burstCount = 44;
+    const newFlowers = Array.from({ length: burstCount }, (_, i) => {
+      const angle = (Math.PI * 2 * (i / burstCount)) + (Math.random() * 0.4 - 0.2);
+      const distance = 180 + Math.random() * 280;
+      const flyX = Math.cos(angle) * distance;
+      // bias upward for celebratory eruption
+      const flyY = Math.sin(angle) * distance - (80 + Math.random() * 140);
+      const flyMidX = flyX * 0.45 + (Math.random() * 50 - 25);
+      const flyMidY = flyY * 0.45 - (40 + Math.random() * 60);
+      const driftX = (Math.random() - 0.5) * 90;
+
+      return {
+        id: i,
+        type: flowerTypes[i % flowerTypes.length],
+        duration: `${2.8 + Math.random() * 1.6}s`,
+        delay: `${Math.random() * 0.3}s`,
+        flyX: `${flyX}px`,
+        flyY: `${flyY}px`,
+        flyMidX: `${flyMidX}px`,
+        flyMidY: `${flyMidY}px`,
+        driftX: `${driftX}px`,
+        spin: `${(Math.random() > 0.5 ? 1 : -1) * (420 + Math.random() * 540)}deg`,
+        scale: (0.7 + Math.random() * 0.7).toFixed(2),
+        size: 22 + Math.floor(Math.random() * 22),
+      };
+    });
+    setFlowers(newFlowers);
+
+    // Smoothly complete the reveal after fade animation
+    window.setTimeout(() => {
+      setRevealed(true);
+    }, 600);
+  }, []);
+
   const scratch = useCallback((e) => {
-    if (!isDrawing.current) return;
+    if (!isDrawing.current || hasTriggered.current) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -130,40 +174,94 @@ function ScratchCard() {
     const x = clientX - rect.left;
     const y = clientY - rect.top;
     ctx.beginPath();
-    ctx.arc(x, y, 28, 0, Math.PI * 2);
+    ctx.arc(x, y, 32, 0, Math.PI * 2);
     ctx.fill();
 
-    // Check reveal percentage
+    // Check reveal percentage (fast sampling every 16th pixel)
     const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imgData.data;
     let cleared = 0;
-    for (let i = 3; i < imgData.data.length; i += 4) {
-      if (imgData.data[i] === 0) cleared++;
+    let sampled = 0;
+    for (let i = 3; i < data.length; i += 64) {
+      sampled++;
+      if (data[i] === 0) cleared++;
     }
-    if (cleared / (imgData.data.length / 4) > 0.45) {
-      setRevealed(true);
+
+    // Auto-reveal and fly party flowers when 20% or above is scratched!
+    if (sampled > 0 && (cleared / sampled) >= 0.20) {
+      triggerCelebration();
     }
-  }, []);
+  }, [triggerCelebration]);
 
   return (
-    <div className="scratch-card">
-      <div className="scratch-content">
-        <p className="scratch-tagline">Together, our story begins</p>
-        <p className="scratch-names">{wedding.groom} & {wedding.bride}</p>
-        <p className="scratch-date">{wedding.weddingDate}</p>
-      </div>
-      {!revealed && (
-        <canvas
-          ref={initCanvas}
-          className="scratch-canvas"
-          onMouseDown={() => { isDrawing.current = true; }}
-          onMouseUp={() => { isDrawing.current = false; }}
-          onMouseLeave={() => { isDrawing.current = false; }}
-          onMouseMove={scratch}
-          onTouchStart={() => { isDrawing.current = true; }}
-          onTouchEnd={() => { isDrawing.current = false; }}
-          onTouchMove={scratch}
-        />
+    <div className="scratch-card-wrapper">
+      {/* Flying party flowers layer */}
+      {flowers.length > 0 && (
+        <div className="flower-burst-layer" aria-hidden="true">
+          {flowers.map((f) => (
+            <div
+              key={f.id}
+              className="party-flower"
+              style={{
+                '--duration': f.duration,
+                '--delay': f.delay,
+                '--fly-x': f.flyX,
+                '--fly-y': f.flyY,
+                '--fly-mid-x': f.flyMidX,
+                '--fly-mid-y': f.flyMidY,
+                '--drift-x': f.driftX,
+                '--spin': f.spin,
+                '--scale': f.scale,
+              }}
+            >
+              {f.type === 'rose' && (
+                <img
+                  src="/image/imgi_2_petal-rose.png"
+                  alt=""
+                  width={f.size}
+                  height={f.size}
+                  style={{ width: f.size, height: f.size, objectFit: 'contain' }}
+                />
+              )}
+              {f.type === 'daisy' && (
+                <img
+                  src="/image/imgi_1_petal-daisy.png"
+                  alt=""
+                  width={f.size}
+                  height={f.size}
+                  style={{ width: f.size, height: f.size, objectFit: 'contain' }}
+                />
+              )}
+              {f.type === 'blossom' && <RoyalBlossomPetal size={f.size} />}
+              {f.type === 'leaf' && <RoyalGoldenLeaf size={f.size} />}
+              {f.type === 'sparkle' && (
+                <span className="party-sparkle" style={{ fontSize: `${f.size}px` }}>✦</span>
+              )}
+            </div>
+          ))}
+        </div>
       )}
+
+      <div className={`scratch-card ${fading ? 'celebrate-pulse' : ''}`}>
+        <div className={`scratch-content ${fading ? 'revealed-glow' : ''}`}>
+          <p className="scratch-tagline">Together, our story begins</p>
+          <p className="scratch-names">{wedding.groom} &amp; {wedding.bride}</p>
+          <p className="scratch-date">{wedding.weddingDate}</p>
+        </div>
+        {!revealed && (
+          <canvas
+            ref={initCanvas}
+            className={`scratch-canvas ${fading ? 'canvas-fade-out' : ''}`}
+            onMouseDown={() => { isDrawing.current = true; }}
+            onMouseUp={() => { isDrawing.current = false; }}
+            onMouseLeave={() => { isDrawing.current = false; }}
+            onMouseMove={scratch}
+            onTouchStart={() => { isDrawing.current = true; }}
+            onTouchEnd={() => { isDrawing.current = false; }}
+            onTouchMove={scratch}
+          />
+        )}
+      </div>
     </div>
   );
 }
@@ -297,10 +395,36 @@ function EventCard({ event }) {
                 <div key={t.label} className="event-value">{t.label} · {t.time}</div>
               ))}
             </div>
-            <div>
-              <div className="event-label">Venue</div>
-              <div className="event-value venue-val">{event.venue}</div>
-            </div>
+            {event.venue && (
+              <div>
+                <div className="event-label">Venue</div>
+                <div className="event-value venue-val">{event.venue}</div>
+              </div>
+            )}
+            {event.baraatDetails && (
+              <div className="baraat-seamless">
+                <Divider className="small" />
+                <div className="event-label baraat-header">📍 Baraat Details</div>
+                {event.baraatDetails.date && (
+                  <div>
+                    <div className="event-label">Date</div>
+                    <div className="event-value">{event.baraatDetails.date}</div>
+                  </div>
+                )}
+                {event.baraatDetails.departure && (
+                  <div>
+                    <div className="event-label">Departure</div>
+                    <div className="event-value venue-val">{event.baraatDetails.departure}</div>
+                  </div>
+                )}
+                {event.baraatDetails.destination && (
+                  <div>
+                    <div className="event-label">Destination (Arrival)</div>
+                    <div className="event-value venue-val">{event.baraatDetails.destination}</div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -343,31 +467,35 @@ function VenueSection() {
     <section className="venue-section">
       <CornerOrnaments />
       <div className="venue-inner">
-        <p className="venue-label">VENUE</p>
+        <p className="venue-label">VENUE &amp; LOCATIONS</p>
         <h2 className="venue-title">Where We Celebrate</h2>
         <Divider />
-        {wedding.venues.map((v) => (
-          <div key={v.name} className="venue-block">
-            <p className="venue-name">{v.name}</p>
-            <div className="map-container">
-              <iframe
-                title={`${v.name} map`}
-                src={v.mapEmbed}
-                className="map-iframe"
-                loading="lazy"
-              />
+        <div className="venues-grid">
+          {wedding.venues.map((v) => (
+            <div key={v.name} className="venue-block">
+              {v.title && <h3 className="venue-block-title">{v.title}</h3>}
+              {v.subtitle && <p className="venue-block-sub">{v.subtitle}</p>}
+              <p className="venue-name">{v.name}</p>
+              <div className="map-container">
+                <iframe
+                  title={`${v.name} map`}
+                  src={v.mapEmbed}
+                  className="map-iframe"
+                  loading="lazy"
+                />
+              </div>
+              <a
+                href={v.directionsUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="directions-btn"
+              >
+                <Navigation size={16} />
+                Get Directions
+              </a>
             </div>
-            <a
-              href={v.directionsUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="directions-btn"
-            >
-              <Navigation size={16} />
-              Get Directions
-            </a>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );
